@@ -7,7 +7,7 @@
 因为Storm在Zookeeper或本地磁盘上维持所有的集群状态，守护进程就可以是无状态的而且可能失效或重启而不会影响整个系统的健康（见图1-2）
 ![图1-2 Storm集群的组件][1]
 
-在系统底层，Storm使用了zeromq(0mq, zeromq(http://www.zeromq.org))。这是一种先进的，可嵌入的网络通讯库，它提供的绝妙功能使Storm成为可能。下面列出一些zeromq的特性。
+在系统底层，Storm使用了zeromq(0mq, zeromq(http://www.zeromq.org))。 这是一种先进的，可嵌入的网络通讯库，它提供的绝妙功能使Storm成为可能。下面列出一些zeromq的特性。
 
  - 一个并发架构的Socket库
  - 对于集群产品和超级计算，比TCP要快
