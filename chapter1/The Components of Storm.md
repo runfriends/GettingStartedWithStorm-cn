@@ -15,7 +15,7 @@
  - 异步I / O的可扩展的多核消息传递应用程序
  - 利用扇出(fanout), 发布订阅（PUB-SUB）,管道（pipeline）, 请求应答（REQ-REP），等方式实现N-N连接
 
-NOTE:  Storm只用了push/pullsockets
+**NOTE**:  Storm只用了push/pullsockets
 
 
   [1]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter1/Figure%201-2.%20Components%20of%20a%20Storm%20cluster.png
