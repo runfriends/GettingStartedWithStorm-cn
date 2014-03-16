@@ -12,8 +12,8 @@ Storm    暴风雨
 
 *nimbus* 雨云，主节点的守护进程，负责为工作节点分发任务。
 
-下面是一些
+下面的术语跟气象就没有关系了
 
-*topology* Storm的一个任务单元
+*topology* 拓扑结构，Storm的一个任务单元
 
 *define field(s)* 定义域，由*spout*或*bolt*提供，被*bolt*接收
