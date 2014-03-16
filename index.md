@@ -15,9 +15,12 @@
 
 [操作模式][5]
 
+[Hello World][6]
+
 
   [1]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter1/Basics.md
   [2]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter1/The%20Components%20of%20Storm.md
   [3]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter1/The%20Properties%20of%20Storm.md
   [4]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter2/Getting%20Started.md
   [5]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter2/Operation%20Modes.md
+  [6]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter2/Hello%20World%20Storm.md
