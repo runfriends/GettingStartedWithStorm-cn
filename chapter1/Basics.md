@@ -18,6 +18,7 @@ Storm是一个分布式的，可靠的，容错的数据流处理系统。它会
 连续发送数据到客户端，使它们能够实时更新并显示结果，如网站指标。
 
 分布式远程过程调用 
+
 频繁的CPU密集型操作并行化。
 
   [1]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter1/Figure%201-1%20A%20simple%20topology.jpeg
