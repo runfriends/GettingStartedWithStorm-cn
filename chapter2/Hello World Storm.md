@@ -113,90 +113,89 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
 **NOTE:** 一个*spout*发布一个定义域列表。这个架构允许你使用不同的*bolts*从同一个*spout*流读取数据，它们的输出也可作为其它*bolts*的定义域，以此类推。
 
 例2-1包含WordRead类的完整代码（我们将会分配下述代码的每一部分）。
+ 
 
-`
-/**
- *  例2-1.src/main/java/spouts/WordReader.java
- */
-`
-
-    package spouts;
-    import java.io.BufferedReader;
-    import java.io.FileNotFoundException;
-    import java.io.FileReader;
-    import java.util.Map;
-    import backtype.storm.spout.SpoutOutputCollector;
-    import backtype.storm.task.TopologyContext;
-    import backtype.storm.topology.IRichSpout;
-    import backtype.storm.topology.OutputFieldsDeclarer;
-    import backtype.storm.tuple.Fields;
-    import backtype.storm.tuple.Values;
-    public class WordReader implements IRichSpout {
-        private SpoutOutputCollector collector;
-        private FileReader fileReader;
-        private boolean completed = false;
-        private TopologyContext context;
-        public boolean isDistributed() {return false;}
-        public void ack(Object msgId) {
-                System.out.println("OK:"+msgId);
-        }
-        public void close() {}
-        public void fail(Object msgId) {
-             System.out.println("FAIL:"+msgId);
-        }
-        /**
-         * The only thing that the methods will do It is emit each
-         * file line
+       /**
+         *  例2-1.src/main/java/spouts/WordReader.java
          */
-        public void nextTuple() {
-        /**
-         * The nextuple it is called forever, so if we have been readed the file
-         * we will wait and then return
-         */
-             if(completed){
-                 try {
-                     Thread.sleep(1000);
-                 } catch (InterruptedException e) {
-                     //Do nothing
+        package spouts;
+    
+        import java.io.BufferedReader;
+        import java.io.FileNotFoundException;
+        import java.io.FileReader;
+        import java.util.Map;
+        import backtype.storm.spout.SpoutOutputCollector;
+        import backtype.storm.task.TopologyContext;
+        import backtype.storm.topology.IRichSpout;
+        import backtype.storm.topology.OutputFieldsDeclarer;
+        import backtype.storm.tuple.Fields;
+        import backtype.storm.tuple.Values;
+    
+        public class WordReader implements IRichSpout {
+            private SpoutOutputCollector collector;
+            private FileReader fileReader;
+            private boolean completed = false;
+            private TopologyContext context;
+            public boolean isDistributed() {return false;}
+            public void ack(Object msgId) {
+                    System.out.println("OK:"+msgId);
+            }
+            public void close() {}
+            public void fail(Object msgId) {
+                 System.out.println("FAIL:"+msgId);
+            }
+            /**
+             * The only thing that the methods will do It is emit each file line
+             */
+            public void nextTuple() {
+            /**
+             * The nextuple it is called forever, so if we have been readed the file
+             * we will wait and then return
+             */
+                 if(completed){
+                     try {
+                         Thread.sleep(1000);
+                     } catch (InterruptedException e) {
+                         //Do nothing
+                     }
+                    return;
                  }
-                return;
+                 String str;
+                 //Open the reader
+                 BufferedReader reader = new BufferedReader(fileReader);
+                 try{
+                     //Read all lines
+                    while((str = reader.readLine()) != null){
+                     /**
+                      * By each line emmit a new value with the line as a their
+                      */
+                         this.collector.emit(new Values(str),str);
+                     }
+                 }catch(Exception e){
+                     throw new RuntimeException("Error reading tuple",e);
+                 }finally{
+                     completed = true;
+                 }
              }
-             String str;
-             //Open the reader
-             BufferedReader reader = new BufferedReader(fileReader);
-             try{
-                 //Read all lines
-                while((str = reader.readLine()) != null){
-                 /**
-                  * By each line emmit a new value with the line as a their
-                  */
-                     this.collector.emit(new Values(str),str);
-                 }
-             }catch(Exception e){
-                 throw new RuntimeException("Error reading tuple",e);
-             }finally{
-                 completed = true;
+             /**
+              * We will create the file and get the collector object
+              */
+             public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
+                     try {
+                         this.context = context;
+                         this.fileReader = new FileReader(conf.get("wordsFile").toString());
+                     } catch (FileNotFoundException e) {
+                         throw new RuntimeException("Error reading file ["+conf.get("wordFile")+"]");
+                     }
+                     this.collector = collector;
              }
-         }
-         /**
-          * We will create the file and get the collector object
-          */
-         public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
-                 try {
-                     this.context = context;
-                     this.fileReader = new FileReader(conf.get("wordsFile").toString());
-                 } catch (FileNotFoundException e) {
-                     throw new RuntimeException("Error reading file ["+conf.get("wordFile")+"]");
-                 }
-                 this.collector = collector;
-         }
-         /**
-          * Declare the output field "word"
-          */
-         public void declareOutputFields(OutputFieldsDeclarer declarer) {
-             declarer.declare(new Fields("line"));
-         }
-    }
+             /**
+              * Declare the output field "word"
+              */
+             public void declareOutputFields(OutputFieldsDeclarer declarer) {
+                 declarer.declare(new Fields("line"));
+             }
+        }
 
   [1]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter2/Figure%202-1.%20Getting%20started%20topology.png
   [2]: https://github.com/%20storm-book/examples-ch02-getting_started/zipball/master
