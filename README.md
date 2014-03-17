@@ -18,3 +18,5 @@ Storm    暴风雨
 *topology* 拓扑结构，Storm的一个任务单元
 
 *define field(s)* 定义域，由*spout*或*bolt*提供，被*bolt*接收
+
+*tuple* 元组，具名列表，任意可被序列化的java对象。Storm默认可序列化字符串、字节数组、ArrayList、HashMap、HashSet
