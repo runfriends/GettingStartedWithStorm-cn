@@ -197,6 +197,49 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
              }
         }
 
+被调用的任意*spout*里定义的第一个方法是**public void open(Map conf, TopologyContext context, SpoutOutputCollector collector)**。它接收如下参数：配置对象，在定义topology对象是创建；TopologyContext对象，包含所有topology数据；还有SpoutOutputCollector对象，它能让我们发布交给*bolts*处理的数据。下面的代码主是这个方法的实现。
+
+    public void open(Map conf, TopologyContext context,
+        SpoutOutputCollector collector) {
+        try {
+            this.context = context;
+            this.fileReader = new FileReader(conf.get("wordsFile").toString());
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("Error reading file ["+conf.get("wordFile")+"]");
+        }
+        this.collector = collector;
+    }
+
+我们在这个方法里创建了一个FileReader对象，用来读取文件。接下来我们要实现**public void nextTuple()**，我们要通过它向*bolts*发布待处理的数据。在这个例子里，这个方法要读取文件并逐行发布数据。
+
+    public void nextTuple() {
+        if(completed){
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                // do nothing
+            }
+            return;
+        }
+        String str;
+        BufferedReader reader = new BufferedReader(fileReader);
+        try{
+            while((str = reader.readLine()) != null){
+                this.collector.emit(new Values(str));
+            }
+        }catch(Exception e){
+            throw new RuntimeException("Error reading tuple",e);
+        }finally{
+            completed = true;
+        }
+    }
+
+**NOTE:** Values是一个ArrarList实现，它的元素就是传入构造的参数。
+
+**nextTuple()**会在同一个循环内被**ack()**和 **fail()**周期性的调用。没有任务时它必须释放对线程的控制，其它方法有机会得以执行。因此nextTuple的第一行就要检查是否已处理完成。如果完成了，为了降低处理器负载，会在返回前休眠一毫秒。如果任务完成了，文件中的每一行都已被读出并分发了。
+
+**NOTE:**元组(tuple)是一个具名值列表，它可以是任意java对象（只要它是可序列化的）。默认情况，Storm会序列化字符串、字节数组、ArrayList、HashMap和HashSet等类型。
+
   [1]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter2/Figure%202-1.%20Getting%20started%20topology.png
   [2]: https://github.com/%20storm-book/examples-ch02-getting_started/zipball/master
   [3]: http://git-scm.com/
