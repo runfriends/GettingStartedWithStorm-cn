@@ -240,7 +240,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
 
 **NOTE:**元组(tuple)是一个具名值列表，它可以是任意java对象（只要它是可序列化的）。默认情况，Storm会序列化字符串、字节数组、ArrayList、HashMap和HashSet等类型。
 
-  [1]: http://ifeve.com/wp-content/uploads/2014/03/Figure-2-1.-Getting-started-topology-300x88.png
+  [1]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter2/Figure%202-1.%20Getting%20started%20topology.png
   [2]: https://github.com/%20storm-book/examples-ch02-getting_started/zipball/master
   [3]: http://git-scm.com/
   [4]: e%20http://www.java.com/download/
