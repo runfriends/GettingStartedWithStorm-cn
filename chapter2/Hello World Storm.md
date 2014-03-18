@@ -14,14 +14,14 @@ storm-book/examples-ch02-getting_started/zipball/master][2]。
 ###**Java安装检查**
 
 构建Storm运行环境的第一步是检查你安装的Java版本。打开一个控制台窗口并执行命令：java -version。控制台应该会显示出类似如下的内容：
-
+```sh
     java -version
 
     java version "1.6.0_26"
     Java(TM) SE Runtime Enviroment (build 1.6.0_26-b03)
 
     Java HotSpot(TM) Server VM (build 20.1-b02, mixed mode)
-
+```
 如果不是上述内容，检查你的Java安装情况。（参考[http://www.java.com/download/][4]
 
 ###**创建工程**
@@ -88,7 +88,7 @@ storm-book/examples-ch02-getting_started/zipball/master][2]。
 开头几行指定了工程名称和版本号。然后我们添加了一个编译器插件，告知Maven我们的代码要用Java1.6编译。接下来我们定义了Maven仓库（Maven支持为同一个工程指定多个仓库）。clojars是存放Storm依赖的仓库。Maven会为运行本地模式自动下载必要的所有子包依赖。
 
 一个典型的Maven Java工程会拥有如下结构：
-
+```
     我们的应用目录/
              ├── pom.xml
              └── src
@@ -97,7 +97,7 @@ storm-book/examples-ch02-getting_started/zipball/master][2]。
                    |  ├── spouts
                    |  └── bolts
                    └── resources
-
+```
 java目录下的子目录包含我们的代码，我们把要统计单词数的文件保存在resource目录下。
 
 **NOTE**：命令mkdir -p 会创建所有需要的父目录。
