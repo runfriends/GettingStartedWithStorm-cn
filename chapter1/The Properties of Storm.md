@@ -28,5 +28,4 @@
 
  - 事务性
 
-    You can get exactly once messaging semantics for pretty much any computation
     你可以为几乎任何计算得到恰好一次消息语义。
