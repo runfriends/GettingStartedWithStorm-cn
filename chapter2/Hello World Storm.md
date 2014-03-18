@@ -45,7 +45,7 @@ storm-book/examples-ch02-getting_started/zipball/master][2]。
 **NOTE:** Storm的Maven依赖引用了运行Storm本地模式的所有库。
 
 要运行我们的topology，我们可以编写一个包含基本组件的pom.xml文件。
-
+```xml
     <project xmlns="http://maven.apache.org/POM/4.0.0"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
@@ -84,7 +84,7 @@ storm-book/examples-ch02-getting_started/zipball/master][2]。
                  </dependency>
              </dependencies>
     </project>
-
+```
 开头几行指定了工程名称和版本号。然后我们添加了一个编译器插件，告知Maven我们的代码要用Java1.6编译。接下来我们定义了Maven仓库（Maven支持为同一个工程指定多个仓库）。clojars是存放Storm依赖的仓库。Maven会为运行本地模式自动下载必要的所有子包依赖。
 
 一个典型的Maven Java工程会拥有如下结构：
@@ -114,7 +114,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
 
 例2-1包含WordRead类的完整代码（我们将会分配下述代码的每一部分）。
  
-
+```java
        /**
          *  例2-1.src/main/java/spouts/WordReader.java
          */
@@ -196,9 +196,9 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
                  declarer.declare(new Fields("line"));
              }
         }
-
+```
 被调用的任意*spout*里定义的第一个方法是**public void open(Map conf, TopologyContext context, SpoutOutputCollector collector)**。它接收如下参数：配置对象，在定义topology对象是创建；TopologyContext对象，包含所有topology数据；还有SpoutOutputCollector对象，它能让我们发布交给*bolts*处理的数据。下面的代码主是这个方法的实现。
-
+```java
     public void open(Map conf, TopologyContext context,
         SpoutOutputCollector collector) {
         try {
@@ -209,9 +209,9 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
         }
         this.collector = collector;
     }
-
+```
 我们在这个方法里创建了一个FileReader对象，用来读取文件。接下来我们要实现**public void nextTuple()**，我们要通过它向*bolts*发布待处理的数据。在这个例子里，这个方法要读取文件并逐行发布数据。
-
+```java
     public void nextTuple() {
         if(completed){
             try {
@@ -233,7 +233,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
             completed = true;
         }
     }
-
+```
 **NOTE:** Values是一个ArrarList实现，它的元素就是传入构造的参数。
 
 **nextTuple()**会在同一个循环内被**ack()**和 **fail()**周期性的调用。没有任务时它必须释放对线程的控制，其它方法有机会得以执行。因此nextTuple的第一行就要检查是否已处理完成。如果完成了，为了降低处理器负载，会在返回前休眠一毫秒。如果任务完成了，文件中的每一行都已被读出并分发了。
