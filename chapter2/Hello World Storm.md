@@ -240,6 +240,99 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
 
 **NOTE:**元组(tuple)是一个具名值列表，它可以是任意java对象（只要它是可序列化的）。默认情况，Storm会序列化字符串、字节数组、ArrayList、HashMap和HashSet等类型。
 
+**Bolts**
+
+现在我们有了一个*spout*，用来按行读取文件并每行发布一个*元组*，还要创建两个*bolts*，用来处理它们（看图2-1）。*bolts*实现了接口**backtype.storm.topology.IRichBolt**。
+
+*bolt*最重要的方法是**void execute(Tuple input)**，每次接收到*tuple*时都会被调用一次，还会再发布若干个*tuples*。
+
+**NOTE:** 只要必要，*bolt*或*spout*会发布若干*tuples*。当调用**nextTuple**或**execute**方法时，它们可能会发布0个、1个或许多个*tuples*。你将在[第五章][9]学习更多这方面的内容。
+
+第一个*bolt*，**WordNormalizer**，负责得到并标准化每行文本。它把文本行切分成单词，大写转化成小写，去掉头尾空白符。
+
+首先我们要声明*bolt*的出参：
+```java
+    public void declareOutputFields(OutputFieldsDeclarer declarer){
+        declarer.declare(new Fields("word"));
+    }
+```
+这里我们声明*bolt*将发布一个名为“word”的域。
+
+下一步我们实现**public void execute(Tuple input)**，处理传入的*tuple*：
+```java
+    public void execute(Tuple input){
+        String senteence=input.getString(0);
+        String[] words=sentence.split(" ");
+        for(String word : words){
+            word=word.trim();
+            if(!word.isEmpty()){
+                word=word.toLowerCase();
+                //发布这个单词
+                collector.emit(new Values(word));
+            }
+        }
+        //对*tuple*做出应答
+        collector.ack(input);
+    }
+```
+
+第一行从*tuple*读取值。值可以按位置或名称读取。接下来值被处理并和collector对象发布。最后，每次都调用collector对象的**ack()**方法确认已成功处理了一个*tuple*。
+
+例2-2是这个类的完整代码。
+```java
+    //例2-2 src/main/java/bolts/WordNormalizer.java
+    package bolts;
+    import java.util.ArrayList;
+    import java.util.List;
+    import java.util.Map;
+    import backtype.storm.task.OutputCollector;
+    import backtype.storm.task.TopologyContext;
+    import backtype.storm.topology.IRichBolt;
+    import backtype.storm.topology.OutputFieldsDeclarer;
+    import backtype.storm.tuple.Fields;
+    import backtype.storm.tuple.Tuple;
+    import backtype.storm.tuple.Values;
+    public class WordNormalizer implements IRichBolt{
+        private OutputCollector collector;
+        public void cleanup(){}
+        /**
+          * *bolt*从单词文件接收到文本行，并标准化它。
+          * 
+          * 文本行会被转化成全部小写，并切分它，从中得到所有单词。
+         */
+        public void execute(Tuple input){
+            String sentence = input.getString(0);
+            String[] words = sentence.split(" ");
+            for(String word : words){
+                word = word.trim();
+                if(!word.isEmpty()){
+                    word=word.toLowerCase();
+                    //发布这个单词
+                    List a = new ArrayList();
+                    a.add(input);
+                    collector.emit(a,new Values(word));
+                }
+            }
+            //确认这个*tuple*
+            collector.ack(input);
+        }
+        public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
+            this.collector=collector;
+        }
+        
+        /**
+          * 这个*bolt*只会发布“word”域
+          */
+        public void declareOutputFields(OutputFieldsDeclarer declarer) {
+            declarer.declare(new Fields("word"));
+        }
+    }
+```
+
+**NOTE:**通过这个例子，我们了解了在一次**execute**调用中发布多个*tuples*。如果这个方法在一次调用中接收到句子“This is the Storm book”，它将会发布五个*tuples*。
+
+
+
   [1]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter2/Figure%202-1.%20Getting%20started%20topology.png
   [2]: https://github.com/%20storm-book/examples-ch02-getting_started/zipball/master
   [3]: http://git-scm.com/
@@ -248,3 +341,4 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
   [6]: http://maven.apache.org/download.html
   [7]: http://maven.apache.org/
   [8]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter4/Spouts.md
+  [9]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter5/Bolts.md
