@@ -1,10 +1,10 @@
 ###**Hello World**
 
-在这个工程里，我们创建一个简单的topology，数单词数量。我们可以把这个看作Storm的“Hello World”。不过，这是一个非常强大的topology，因为它能够扩展到几乎无限大的规模，而且只需要做一些小修改，就能用它构建一个统计系统。举个例子，我们可以把工程修改一下用来找出Twitter上的热点话题。
+在这个工程里，我们创建一个简单的拓扑，数单词数量。我们可以把这个看作Storm的“Hello World”。不过，这是一个非常强大的拓扑，因为它能够扩展到几乎无限大的规模，而且只需要做一些小修改，就能用它构建一个统计系统。举个例子，我们可以修改一下工程用来找出Twitter上的热点话题。
 
-要创建这个topology，我们要用一个*spout*读取文本，第一个*bolt*标准化单词，第二个*bolt*，如图2-1所示。
+要创建这个拓扑，我们要用一个*spout*读取文本，第一个*bolt*标准化单词，第二个*bolt*，如图2-1所示。
 
-![图2-1 topology入门][1]
+![图2-1 拓扑入门][1]
 
 你可以从这个网址下载源码压缩包，[ https://github.com/
 storm-book/examples-ch02-getting_started/zipball/master][2]。
@@ -44,7 +44,7 @@ storm-book/examples-ch02-getting_started/zipball/master][2]。
 
 **NOTE:** Storm的Maven依赖引用了运行Storm本地模式的所有库。
 
-要运行我们的topology，我们可以编写一个包含基本组件的pom.xml文件。
+要运行我们的拓扑，我们可以编写一个包含基本组件的pom.xml文件。
 ```xml
     <project xmlns="http://maven.apache.org/POM/4.0.0"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -102,7 +102,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
 
 **NOTE**：命令mkdir -p 会创建所有需要的父目录。
 
-###**创建我们的第一个Topology**
+###**创建我们的第一个拓扑**
 
 我们将为运行单词计数创建所有必要的类。可能这个例子中的某些部分，现在无法讲的很清楚，不过我们会在随后的章节做进一步的讲解。
 
@@ -197,7 +197,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
              }
         }
 ```
-被调用的任意*spout*里定义的第一个方法是**public void open(Map conf, TopologyContext context, SpoutOutputCollector collector)**。它接收如下参数：配置对象，在定义topology对象是创建；TopologyContext对象，包含所有topology数据；还有SpoutOutputCollector对象，它能让我们发布交给*bolts*处理的数据。下面的代码主是这个方法的实现。
+被调用的任意*spout*里定义的第一个方法是**public void open(Map conf, TopologyContext context, SpoutOutputCollector collector)**。它接收如下参数：配置对象，在定义topology对象是创建；TopologyContext对象，包含所有拓扑数据；还有SpoutOutputCollector对象，它能让我们发布交给*bolts*处理的数据。下面的代码主是这个方法的实现。
 ```java
     public void open(Map conf, TopologyContext context,
         SpoutOutputCollector collector) {
@@ -331,7 +331,78 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
 
 **NOTE:**通过这个例子，我们了解了在一次**execute**调用中发布多个*tuples*。如果这个方法在一次调用中接收到句子“This is the Storm book”，它将会发布五个*tuples*。
 
+下一个*bolt*，**WordCounter**，负责为单词数数。这个拓扑结束时（**cleanup()**方法被调用时），我们将显示每个单词的数量。
 
+**NOTE: **这个例子的*bolt*什么也没发布，它把数据保存在map里，但是在真实的场景中可以把数据保存到数据库。
+```java
+package bolts;
+
+import java.util.HashMap;
+import java.util.Map;
+import backtype.storm.task.OutputCollector;
+import backtype.storm.task.TopologyContext;
+import backtype.storm.topology.IRichBolt;
+import backtype.storm.topology.OutputFieldsDeclarer;
+import backtype.storm.tuple.Tuple;
+
+public class WordCounter implements IRichBolt{
+    Integer id;
+    String name;
+    Map<String,Integer> counters;
+    private OutputCollector collector;
+
+    /**
+      * 这个spout结束时（集群关闭的时候），我们会显示单词数量
+      */
+    @Override
+    public void cleanup(){
+        System.out.println("-- 单词数 【"+name+"-"+id+"】 --");
+        for(Map.Entry<String,Integer> entry : counters.entrySet()){
+            System.out.println(entry.getKey()+": "+entry.getValue());
+        }
+    }
+    
+    /**
+     *  为每个单词计数
+     */
+    @Override
+    public void execute(Tuple input) {
+        String str=input.getString(0);
+        /**
+         * 如果单词尚不存在于map，我们就创建一个，如果已在，我们就为它加1
+         */
+        if(!counters.containsKey(str)){
+            conters.put(str,1);
+        }else{
+            Integer c = counters.get(str) + 1;
+            counters.put(str,c);
+        }
+        //将元组作为应答
+        collector.ack(input);
+    }
+
+    /**
+     * 初始化
+     */
+    @Override
+    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector){
+        this.counters = new HashMap<String, Integer>();
+        this.collector = collector;
+        this.name = context.getThisComponentId();
+        this.id = context.getThisTaskId();
+    }
+    
+    @Override
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {}
+}
+```
+execute方法使用一个map收集单词并计数。拓扑结束时，将调用**clearup()**方法打印计数器map。（虽然这只是一个例子，但是通常情况下，当拓扑关闭时，你应当使用**cleanup()**方法关闭活动的连接和其它资源。）
+
+**主类**
+
+你可以在主类中创建拓扑和一个本地集群对象，以便于在本地测试和调试。**LocalCluster**可以通过**Config**对象，让你尝试不同的集群配置。比如，当使用不同的worker数量测试你的拓扑时，如果不小心使用了某个全局变量或类变量，你就能够发现错误。
+
+**NOTE：**
 
   [1]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter2/Figure%202-1.%20Getting%20started%20topology.png
   [2]: https://github.com/%20storm-book/examples-ch02-getting_started/zipball/master
