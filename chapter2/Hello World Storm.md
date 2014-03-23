@@ -515,7 +515,8 @@ an: 1
 very: 1**
 棒极了！修改并行度实在是太容易了（当然对于实际情况来说，每个实例都会运行在单独的机器上）。不过似乎有一个问题：单词*is*和*great*分别在每个**WordCounter**各计数一次。怎么会这样？当你调用**shuffleGrouping**时，就决定了Storm会以随机分配的方式向你的*bolt*实例发送消息。在这个例子中，理想的做法是相同的单词问题发送给同一个**WordCounter**实例。你把**shuffleGrouping("word-normalizer")**换成**fieldsGrouping("word-normalizer", new Fields("word"))**就能达到目的。试一试，重新运行程序，确认结果。 你将在后续章节学习更多分组方式和消息流类型。
 
-**结论**
+###**结论**
+
 我们已经讨论了Storm的本地和远程操作模式之间的不同，以及Storm的强大和易于开发的特性。你也学习了一些Storm的基本概念，我们将在后续章节深入讲解它们。
 
   [1]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter2/Figure%202-1.%20Getting%20started%20topology.png
