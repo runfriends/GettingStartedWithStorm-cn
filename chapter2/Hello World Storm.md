@@ -197,7 +197,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
              }
         }
 ```
-被调用的任意*spout*里定义的第一个方法是**public void open(Map conf, TopologyContext context, SpoutOutputCollector collector)**。它接收如下参数：配置对象，在定义topology对象是创建；TopologyContext对象，包含所有拓扑数据；还有SpoutOutputCollector对象，它能让我们发布交给*bolts*处理的数据。下面的代码主是这个方法的实现。
+第一个被调用的*spout*方法都是**public void open(Map conf, TopologyContext context, SpoutOutputCollector collector)**。它接收如下参数：配置对象，在定义topology对象是创建；TopologyContext对象，包含所有拓扑数据；还有SpoutOutputCollector对象，它能让我们发布交给*bolts*处理的数据。下面的代码主是这个方法的实现。
 ```java
     public void open(Map conf, TopologyContext context,
         SpoutOutputCollector collector) {
