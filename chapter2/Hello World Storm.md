@@ -238,9 +238,9 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
 
 现在我们有了一个*spout*，用来按行读取文件并每行发布一个*元组*，还要创建两个*bolts*，用来处理它们（看图2-1）。*bolts*实现了接口**backtype.storm.topology.IRichBolt**。
 
-*bolt*最重要的方法是**void execute(Tuple input)**，每次接收到*tuple*时都会被调用一次，还会再发布若干个*tuples*。
+*bolt*最重要的方法是**void execute(Tuple input)**，每次接收到元组时都会被调用一次，还会再发布若干个元组。
 
-**NOTE:** 只要必要，*bolt*或*spout*会发布若干*tuples*。当调用**nextTuple**或**execute**方法时，它们可能会发布0个、1个或许多个*tuples*。你将在[第五章][9]学习更多这方面的内容。
+**NOTE:** 只要必要，*bolt*或*spout*会发布若干元组。当调用**nextTuple**或**execute**方法时，它们可能会发布0个、1个或许多个元组。你将在[第五章][9]学习更多这方面的内容。
 
 第一个*bolt*，**WordNormalizer**，负责得到并标准化每行文本。它把文本行切分成单词，大写转化成小写，去掉头尾空白符。
 
@@ -252,7 +252,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
 ```
 这里我们声明*bolt*将发布一个名为“word”的域。
 
-下一步我们实现**public void execute(Tuple input)**，处理传入的*tuple*：
+下一步我们实现**public void execute(Tuple input)**，处理传入的元组：
 ```java
     public void execute(Tuple input){
         String sentence=input.getString(0);
@@ -265,12 +265,12 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
                 collector.emit(new Values(word));
             }
         }
-        //对*tuple*做出应答
+        //对元组做出应答
         collector.ack(input);
     }
 ```
 
-第一行从*tuple*读取值。值可以按位置或名称读取。接下来值被处理并用collector对象发布。最后，每次都调用collector对象的**ack()**方法确认已成功处理了一个*tuple*。
+第一行从元组读取值。值可以按位置或名称读取。接下来值被处理并用collector对象发布。最后，每次都调用collector对象的**ack()**方法确认已成功处理了一个元组。
 
 例2-2是这个类的完整代码。
 ```java
@@ -306,7 +306,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
                     collector.emit(a,new Values(word));
                 }
             }
-            //确认这个*tuple*
+            //对元组做出应答
             collector.ack(input);
         }
         public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
@@ -322,7 +322,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
     }
 ```
 
-**NOTE:**通过这个例子，我们了解了在一次**execute**调用中发布多个*tuples*。如果这个方法在一次调用中接收到句子“This is the Storm book”，它将会发布五个*tuples*。
+**NOTE:**通过这个例子，我们了解了在一次**execute**调用中发布多个元组。如果这个方法在一次调用中接收到句子“This is the Storm book”，它将会发布五个元组。
 
 下一个*bolt*，**WordCounter**，负责为单词计数。这个拓扑结束时（**cleanup()**方法被调用时），我们将显示每个单词的数量。
 
@@ -370,7 +370,7 @@ public class WordCounter implements IRichBolt{
             Integer c = counters.get(str) + 1;
             counters.put(str,c);
         }
-        //将元组作为应答
+        //对元组做出应答
         collector.ack(input);
     }
 
