@@ -19,4 +19,4 @@
 你将在[第六章][1]学到更多关于远程模式的内容，并在附录B学到如何安装一个Storm集群。
 
 
-  [1]: %5B10%5D:%20https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter6/A%20RealLife%20Example.md
+  [1]: https://github.com/runfriends/GettingStartedWithStorm-cn/blob/master/chapter6/A%20RealLife%20Example.md
