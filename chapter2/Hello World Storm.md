@@ -457,7 +457,7 @@ execute方法使用一个map收集单词并计数。拓扑结束时，将调用*
     }
 ```
 
-**观察运行情况**
+###**观察运行情况**
 
 你已经为运行你的第一个拓扑准备好了。在这个目录下面创建一个文件，**/src/main/resources/words.txt**，一个单词一行，然后用下面的命令运行这个拓扑：**mvn exec:java -Dexec.mainClass="TopologyMain" -Dexec.args="src/main/resources/words.txt**。
 
