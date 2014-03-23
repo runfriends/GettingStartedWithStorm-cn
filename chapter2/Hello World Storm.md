@@ -33,14 +33,9 @@ storm-book/examples-ch02-getting_started/zipball/master][2]。
  - 下载所有依赖，解压缩它们，把它 们添加到类路径
  - 使用*[Apache Maven][5]*
 
-**NOTE**: Maven是一个软件项目管理的综合工具。它 
-可以用来管理项目的开发周期的许多方面， 
-从包依赖到版本发布过程。在这本书中，我们将广泛使用它 
-。如果要检查是否已经安装了maven，在命令行运行mvn。如果没有安装 
-你可以从[http://maven.apache.org/download.html][6]下载。
+**NOTE**: Maven是一个软件项目管理的综合工具。它可以用来管理项目的开发周期的许多方面，从包依赖到版本发布过程。在这本书中，我们将广泛使用它。如果要检查是否已经安装了maven，在命令行运行mvn。如果没有安装你可以从[http://maven.apache.org/download.html][6]下载。
 
-没有必要先成为一个Maven专家才能使用Storm，不过了解一下关于Maven工作方式的基础知识仍然会对你有所帮助。你可以在 
-在Apache Maven的网站上找到更多的信息（[http://maven.apache.org/][7]）。
+没有必要先成为一个Maven专家才能使用Storm，不过了解一下关于Maven工作方式的基础知识仍然会对你有所帮助。你可以在Apache Maven的网站上找到更多的信息（[http://maven.apache.org/][7]）。
 
 **NOTE:** Storm的Maven依赖引用了运行Storm本地模式的所有库。
 
@@ -112,7 +107,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
 
 **NOTE:** 一个*spout*发布一个定义域列表。这个架构允许你使用不同的*bolts*从同一个*spout*流读取数据，它们的输出也可作为其它*bolts*的定义域，以此类推。
 
-例2-1包含WordRead类的完整代码（我们将会分配下述代码的每一部分）。
+例2-1包含WordRead类的完整代码（我们将会分析下述代码的每一部分）。
  
 ```java
        /**
@@ -145,29 +140,28 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
                  System.out.println("FAIL:"+msgId);
             }
             /**
-             * The only thing that the methods will do It is emit each file line
+             * 这个方法做的惟一一件事情就是分发文件中的文本行
              */
             public void nextTuple() {
             /**
-             * The nextuple it is called forever, so if we have been readed the file
-             * we will wait and then return
+             * 这个方法会不断的被调用，直到整个文件都读完了，我们将等待并返回。
              */
                  if(completed){
                      try {
                          Thread.sleep(1000);
                      } catch (InterruptedException e) {
-                         //Do nothing
+                         //什么也不做
                      }
                     return;
                  }
                  String str;
-                 //Open the reader
+                 //创建reader
                  BufferedReader reader = new BufferedReader(fileReader);
                  try{
-                     //Read all lines
+                     //读所有文本行
                     while((str = reader.readLine()) != null){
                      /**
-                      * By each line emmit a new value with the line as a their
+                      * 按行发布一个新值
                       */
                          this.collector.emit(new Values(str),str);
                      }
@@ -178,7 +172,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
                  }
              }
              /**
-              * We will create the file and get the collector object
+              * 我们将创建一个文件并维持一个collector对象
               */
              public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
                      try {
@@ -190,7 +184,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
                      this.collector = collector;
              }
              /**
-              * Declare the output field "word"
+              * 声明输入域"word"
               */
              public void declareOutputFields(OutputFieldsDeclarer declarer) {
                  declarer.declare(new Fields("line"));
@@ -217,7 +211,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
-                // do nothing
+                //什么也不做
             }
             return;
         }
@@ -234,13 +228,13 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
         }
     }
 ```
-**NOTE:** Values是一个ArrarList实现，它的元素就是传入构造的参数。
+**NOTE:** Values是一个ArrarList实现，它的元素就是传入构造器的参数。
 
-**nextTuple()**会在同一个循环内被**ack()**和 **fail()**周期性的调用。没有任务时它必须释放对线程的控制，其它方法有机会得以执行。因此nextTuple的第一行就要检查是否已处理完成。如果完成了，为了降低处理器负载，会在返回前休眠一毫秒。如果任务完成了，文件中的每一行都已被读出并分发了。
+**nextTuple()**会在同一个循环内被**ack()**和**fail()**周期性的调用。没有任务时它必须释放对线程的控制，其它方法才有机会得以执行。因此nextTuple的第一行就要检查是否已处理完成。如果完成了，为了降低处理器负载，会在返回前休眠一毫秒。如果任务完成了，文件中的每一行都已被读出并分发了。
 
 **NOTE:**元组(tuple)是一个具名值列表，它可以是任意java对象（只要它是可序列化的）。默认情况，Storm会序列化字符串、字节数组、ArrayList、HashMap和HashSet等类型。
 
-**Bolts**
+###**Bolts**
 
 现在我们有了一个*spout*，用来按行读取文件并每行发布一个*元组*，还要创建两个*bolts*，用来处理它们（看图2-1）。*bolts*实现了接口**backtype.storm.topology.IRichBolt**。
 
@@ -261,7 +255,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
 下一步我们实现**public void execute(Tuple input)**，处理传入的*tuple*：
 ```java
     public void execute(Tuple input){
-        String senteence=input.getString(0);
+        String sentence=input.getString(0);
         String[] words=sentence.split(" ");
         for(String word : words){
             word=word.trim();
@@ -276,7 +270,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
     }
 ```
 
-第一行从*tuple*读取值。值可以按位置或名称读取。接下来值被处理并和collector对象发布。最后，每次都调用collector对象的**ack()**方法确认已成功处理了一个*tuple*。
+第一行从*tuple*读取值。值可以按位置或名称读取。接下来值被处理并用collector对象发布。最后，每次都调用collector对象的**ack()**方法确认已成功处理了一个*tuple*。
 
 例2-2是这个类的完整代码。
 ```java
@@ -297,8 +291,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
         public void cleanup(){}
         /**
           * *bolt*从单词文件接收到文本行，并标准化它。
-          * 
-          * 文本行会被转化成全部小写，并切分它，从中得到所有单词。
+          * 文本行会全部转化成小写，并切分它，从中得到所有单词。
          */
         public void execute(Tuple input){
             String sentence = input.getString(0);
@@ -331,7 +324,7 @@ java目录下的子目录包含我们的代码，我们把要统计单词数的�
 
 **NOTE:**通过这个例子，我们了解了在一次**execute**调用中发布多个*tuples*。如果这个方法在一次调用中接收到句子“This is the Storm book”，它将会发布五个*tuples*。
 
-下一个*bolt*，**WordCounter**，负责为单词数数。这个拓扑结束时（**cleanup()**方法被调用时），我们将显示每个单词的数量。
+下一个*bolt*，**WordCounter**，负责为单词计数。这个拓扑结束时（**cleanup()**方法被调用时），我们将显示每个单词的数量。
 
 **NOTE: **这个例子的*bolt*什么也没发布，它把数据保存在map里，但是在真实的场景中可以把数据保存到数据库。
 ```java
@@ -398,7 +391,7 @@ public class WordCounter implements IRichBolt{
 ```
 execute方法使用一个map收集单词并计数。拓扑结束时，将调用**clearup()**方法打印计数器map。（虽然这只是一个例子，但是通常情况下，当拓扑关闭时，你应当使用**cleanup()**方法关闭活动的连接和其它资源。）
 
-**主类**
+###**主类**
 
 你可以在主类中创建拓扑和一个本地集群对象，以便于在本地测试和调试。**LocalCluster**可以通过**Config**对象，让你尝试不同的集群配置。比如，当使用不同数量的工作进程测试你的拓扑时，如果不小心使用了某个全局变量或类变量，你就能够发现错误。（更多内容请见[第三章][10]）
 
@@ -411,7 +404,7 @@ execute方法使用一个map收集单词并计数。拓扑结束时，将调用*
     builder.setBolt("word-normalizer", new WordNormalizer()).shuffleGrouping("word-reader");
     builder.setBolt("word-counter", new WordCounter())..shuffleGrouping("word-normalizer");
 ```
-在*spout*和*bolts*之间通过**shuffleGrouping**方法连接。这种分组方式决定了Storm会随机分配方式从源节点向目标节点发送消息。
+在*spout*和*bolts*之间通过**shuffleGrouping**方法连接。这种分组方式决定了Storm会以随机分配方式从源节点向目标节点发送消息。
 
 下一步，创建一个包含拓扑配置的**Config**对象，它会在运行时与集群配置合并，并通过**prepare**方法发送给所有节点。
 ```java
@@ -453,6 +446,7 @@ execute方法使用一个map收集单词并计数。拓扑结束时，将调用*
             Config conf = new Config();
             conf.put("wordsFile", args[0]);
             conf.setDebug(false);
+            
         //运行拓扑
              conf.put(Config.TOPOLOGY_MAX_SPOUT_PENDING, 1);
             LocalCluster cluster = new LocalCluster();
