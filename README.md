@@ -1,5 +1,6 @@
 GettingStartedWithStorm-cn
 ==========================
+这个项目不更新了，所有译文已经完成并贴到了www.ifeve.com上面。有兴趣的朋友请到本网站的页头菜单寻找
 
 翻译Getting Started with Storm
 所有Storm相关术语都用斜体英文表示。
